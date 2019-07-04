@@ -36,14 +36,14 @@ int main()
 
     if (window == nullptr)
     {
-        std::cout << "Failed to create GLFW Window: \n";
+        printf("Failed to create GLFW Window: \n");
         glfwTerminate();
     }
 
     // Declare our current context
     glfwMakeContextCurrent(window);
 
-    // Double buffering?
+    // v-sync
     glfwSwapInterval(0);
 
     // Attach via glad
@@ -56,6 +56,32 @@ int main()
     // Setting resize for the window via callback.
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // Determining the GLSL and OpenGL version
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* vendor = glGetString(GL_VENDOR);
+    const GLubyte* version = glGetString(GL_VERSION);
+    const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    GLint major, minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+    printf("GL Vendor               : %s\n", vendor);
+    printf("GL Renderer             : %s\n", renderer);
+    printf("GL Version (String)     : %s\n", version);
+    printf("GL Version (Integer)    : %d.%d\n", major, minor);
+    printf("GLSL Version            : %s\n", glslVersion);
+
+    // Extensions
+    //GLint nExtensions;
+    //glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
+
+    //for (int i = 0; i < nExtensions; i++)
+    //    printf("%s\n", glGetStringi(GL_EXTENSIONS, i));
+
+    // It says resource_path isn't valid but it is.
+    printf("%s\n", RESOURCE_PATH);
+    
     // Window loop
     while(!glfwWindowShouldClose(window))
     {
@@ -73,6 +99,6 @@ int main()
 
     // Clean up before finishing
     glfwTerminate();
-    
+
     return 0;
 }
