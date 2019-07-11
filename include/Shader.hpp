@@ -15,6 +15,9 @@ public:
     std::string LoadShaderAsString(std::string fileName);
     void PrintVersions();
     void PrintExtensions();
+
+    void SaveShaderProgramAsBinary(GLuint programHandle);
+    void LoadShaderProgramAsBinary();
 };
 
 #endif // SHADER_HPP

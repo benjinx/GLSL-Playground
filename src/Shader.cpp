@@ -115,6 +115,7 @@ void Shader::Load(std::string vertFile, std::string fragFile)
         glUseProgram(programHandle);
     }
 
+    SaveShaderProgramAsBinary(programHandle);
 
     // Make sure we delete it
     glDetachShader(programHandle, vertShader);
@@ -123,6 +124,72 @@ void Shader::Load(std::string vertFile, std::string fragFile)
     glDeleteShader(vertShader);
 
     //////////////////////////////
+}
+
+void Shader::SaveShaderProgramAsBinary(GLuint programHandle)
+{
+    /// Binary Shader Saving
+    GLint formats = 0;
+    glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &formats);
+    if (formats < 1) {
+        std::cerr << "Driver does not support any binary formats.\n";
+        exit(EXIT_FAILURE);
+    }
+
+    // Get binary length
+    GLint length = 0;
+    glGetProgramiv(programHandle, GL_PROGRAM_BINARY_LENGTH, &length);
+
+    // Retrieve the binary code
+    std::vector<GLubyte> buffer(length);
+    GLenum format = 0;
+
+    glGetProgramBinary(programHandle, length, NULL, &format, buffer.data());
+
+    // Write the binary to a file.
+    std::string fName("Shader.bin");
+    std::cout << "Writing to " << fName << ", binary format = " << format << std::endl;
+    std::ofstream out(fName.c_str(), std::ios::binary);
+    out.write(reinterpret_cast<char *>(buffer.data()), length);
+    out.close();
+}
+
+void Shader::LoadShaderProgramAsBinary()
+{
+    GLuint programHandle = glCreateProgram();
+
+    // Need to find a way to figure out the format :thinking:
+    GLenum format = 36385;
+
+    // Load binary from file
+    std::ifstream inputStream("Shader.bin", std::ios::binary);
+    std::istreambuf_iterator<char> startIt(inputStream), endIt;
+    std::vector<char> buffer(startIt, endIt); // Load file
+    inputStream.close();
+
+    // Install shader binary
+    glProgramBinary(programHandle, format, buffer.data(), buffer.size());
+
+    // Check for success/failure
+    GLint status;
+    glGetProgramiv(programHandle, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE)
+    {
+        std::cerr << "Failed to link shader program.\n";
+        GLint logLen;
+        glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLen);
+        if (logLen > 0) {
+            std::string log(logLen, ' ');
+            GLsizei written;
+            glGetProgramInfoLog(programHandle, logLen, &written, &log[0]);
+            std::cerr << "Program log: \n" << log;
+        }
+    }
+    else
+    {
+        std::cout << "Shader Program Linked!\n";
+        glUseProgram(programHandle);
+    }
 }
 
 std::string Shader::LoadShaderAsString(std::string fileName)
