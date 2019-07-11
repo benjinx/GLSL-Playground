@@ -192,6 +192,124 @@ void Shader::LoadShaderProgramAsBinary()
     }
 }
 
+void Shader::LoadShaderProgramAsSPRIV()
+{
+    GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+
+    // Load the shader into a std::vector
+    std::ifstream inStream("basic.vert.spv", std::ios::binary);
+    std::istreambuf_iterator<char> startIt(inStream), endIt;
+    std::vector<char> buffer(startIt, endIt);
+    inStream.close();
+
+    // Load using glShaderBinary
+    glShaderBinary(1, &vertShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, buffer.data(), buffer.size());
+
+    // Specialize the shader (specify the entry point)
+    glSpecializeShaderARB(vertShader, "main", 0, 0, 0);
+
+    // Check for success/failure
+    GLint result;
+    glGetShaderiv(vertShader, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE)
+    {
+        std::cerr << "Vertex shader compilation failed!\n";
+
+        // Get and print the info log
+        GLint logLen;
+        glGetShaderiv(vertShader, GL_INFO_LOG_LENGTH, &logLen);
+        if (logLen > 0)
+        {
+            std::string log(logLen, ' ');
+            GLsizei written;
+            glGetShaderInfoLog(vertShader, logLen, &written, &log[0]);
+            std::cerr << "Shader log: \n" << log;
+        }
+    }
+    else
+    {
+        printf("Vertex Shader Loaded!\n");
+    }
+
+    GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+    // Load the shader into a std::vector
+    std::ifstream inStream2("basic.frag.spv", std::ios::binary);
+    std::istreambuf_iterator<char> startIt2(inStream2), endIt2;
+    std::vector<char> buffer2(startIt2, endIt2);
+    inStream2.close();
+
+    // Load using glShaderBinary
+    glShaderBinary(1, &fragShader, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, buffer2.data(), buffer2.size());
+
+    // Specialize the shader (specify the entry point)
+    glSpecializeShaderARB(fragShader, "main", 0, 0, 0);
+
+    // Check for success/failure
+    glGetShaderiv(fragShader, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE)
+    {
+        std::cerr << "Fragment shader compilation failed!\n";
+
+
+        // Get and print the info log
+        GLint logLen;
+        glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLen);
+        if (logLen > 0)
+        {
+            std::string log(logLen, ' ');
+            GLsizei written;
+            glGetShaderInfoLog(fragShader, logLen, &written, &log[0]);
+            std::cerr << "Shader log: \n" << log;
+        }
+    }
+    else
+    {
+        printf("Fragment Shader Loaded!\n");
+    }
+
+    // Link our shaders
+    GLuint programHandle = glCreateProgram();
+    if (programHandle == 0)
+    {
+        std::cerr << "Error Creating program object.\n";
+        exit(EXIT_FAILURE);
+    }
+
+    glAttachShader(programHandle, vertShader);
+    glAttachShader(programHandle, fragShader);
+
+    glLinkProgram(programHandle);
+
+    GLint status;
+    glGetProgramiv(programHandle, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE)
+    {
+        std::cerr << "Failed to link shader program.\n";
+        GLint logLen;
+        glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLen);
+        if (logLen > 0) {
+            std::string log(logLen, ' ');
+            GLsizei written;
+            glGetProgramInfoLog(programHandle, logLen, &written, &log[0]);
+            std::cerr << "Program log: \n" << log;
+        }
+    }
+    else
+    {
+        std::cout << "Shader Program Linked!\n";
+        glUseProgram(programHandle);
+    }
+
+    // Make sure we delete it
+    glDetachShader(programHandle, vertShader);
+    glDetachShader(programHandle, fragShader);
+    glDeleteShader(fragShader);
+    glDeleteShader(vertShader);
+
+    //////////////////////////////
+}
+
 std::string Shader::LoadShaderAsString(std::string fileName)
 {
     const auto& paths = Utils::GetResourcePaths();
@@ -228,7 +346,6 @@ std::string Shader::LoadShaderAsString(std::string fileName)
     return shaderString;
 
 }
-
 
 void Shader::PrintVersions()
 {

@@ -31,8 +31,10 @@ int main()
     Shader* shader = new Shader();
 
     shader->PrintVersions();
-    shader->Load("basic.vert.glsl", "basic.frag.glsl");
+    //shader->Load("basic.vert.glsl", "basic.frag.glsl");
     //shader->PrintExtensions();
+    shader->LoadShaderProgramAsBinary();
+    //shader->LoadShaderProgramAsSPRIV();
 
     // Window loop
     while(!glfwWindowShouldClose(window->GetWindow()))

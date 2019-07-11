@@ -18,6 +18,7 @@ public:
 
     void SaveShaderProgramAsBinary(GLuint programHandle);
     void LoadShaderProgramAsBinary();
+    void LoadShaderProgramAsSPRIV();
 };
 
 #endif // SHADER_HPP
