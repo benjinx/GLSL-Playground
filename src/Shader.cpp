@@ -469,7 +469,7 @@ void Shader::Render()
     glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
     GLuint location = glGetUniformLocation(_mProgramHandle, "RotationMatrix");
 
-    if (location >= 0) {
+    if (location >= 0) { // >= 0 meaning it's not -1, if it was -1 that would mean RotationMatrix did not exist/wasn't active.
         glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(rotationMatrix));
     }
 
