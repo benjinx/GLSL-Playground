@@ -116,8 +116,7 @@ void Shader::Load(std::string vertFile, std::string fragFile)
     }
 
     SaveShaderProgramAsBinary();
-
-
+    
     // Make sure we delete it
     glDetachShader(_mProgramHandle, vertShader);
     glDetachShader(_mProgramHandle, fragShader);
