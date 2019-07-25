@@ -31,10 +31,13 @@ int main()
     Shader* shader = new Shader();
 
     shader->PrintVersions();
-    //shader->Load("basic.vert.glsl", "basic.frag.glsl");
+    shader->Load("basic.vert.glsl", "basic.frag.glsl");
+    shader->SendTriangleData();
     //shader->PrintExtensions();
-    shader->LoadShaderProgramAsBinary();
+    //shader->LoadShaderProgramAsBinary();
     //shader->LoadShaderProgramAsSPRIV();
+
+
 
     // Window loop
     while(!glfwWindowShouldClose(window->GetWindow()))
@@ -45,6 +48,8 @@ int main()
         // Render here
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        shader->Render();
 
         // Check and call events/swap the buffers
         glfwPollEvents();

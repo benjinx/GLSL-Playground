@@ -19,6 +19,17 @@ public:
     void SaveShaderProgramAsBinary(GLuint programHandle);
     void LoadShaderProgramAsBinary();
     void LoadShaderProgramAsSPRIV();
+
+    void SendTriangleData();
+    void GetActiveVertexInputAttribs(GLuint programHandle);
+
+    void Render();
+
+    // Helper functions
+    const char* GetTypeString(GLenum type);
+
+private:
+    GLuint _mVaoHandle;
 };
 
 #endif // SHADER_HPP

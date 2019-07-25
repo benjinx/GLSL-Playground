@@ -117,6 +117,8 @@ void Shader::Load(std::string vertFile, std::string fragFile)
 
     SaveShaderProgramAsBinary(programHandle);
 
+    GetActiveVertexInputAttribs(programHandle);
+
     // Make sure we delete it
     glDetachShader(programHandle, vertShader);
     glDetachShader(programHandle, fragShader);
@@ -159,6 +161,7 @@ void Shader::LoadShaderProgramAsBinary()
     GLuint programHandle = glCreateProgram();
 
     // Need to find a way to figure out the format :thinking:
+    // Write to the file the format type first then load it here. - Steve
     GLenum format = 36385;
 
     // Load binary from file
@@ -347,6 +350,84 @@ std::string Shader::LoadShaderAsString(std::string fileName)
 
 }
 
+void Shader::SendTriangleData()
+{
+    // Create VAO for triangle
+    //GLuint vaoHandle;
+
+    // Position & Color data for our Triangle
+    float positionData[] = {
+        -0.8f, -0.8f, 0.0f,
+        0.8f, -0.8f, 0.0f,
+        0.0f, 0.8f, 0.0f
+    };
+
+    float colorData[] = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
+
+    // Create and populate the buffer objects
+    GLuint vboHandles[2];
+    glGenBuffers(2, vboHandles);
+    GLuint positionBufferHandle = vboHandles[0];
+    GLuint colorBufferHandle = vboHandles[1];
+
+    // Populate the position buffer
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), positionData, GL_STATIC_DRAW);
+
+    // Populate the color buffer
+    glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), colorData, GL_STATIC_DRAW);
+
+    // Create and set-up the vertex array object
+    glGenVertexArrays(1, &_mVaoHandle);
+    glBindVertexArray(_mVaoHandle);
+
+    // Enable the vertex attribute arrays
+    glEnableVertexAttribArray(0); // Vertex Position
+    glEnableVertexAttribArray(1); // Vertex Color
+
+    //// Map index 0 to the position buffer
+    //glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    //// Map index 1 to the color buffer
+    //glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    glBindVertexBuffer(0, positionBufferHandle, 0, sizeof(GLfloat) * 3);
+    glBindVertexBuffer(1, colorBufferHandle, 0, sizeof(GLfloat) * 3);
+
+    glVertexAttribFormat(0, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexAttribBinding(0, 0);
+    glVertexAttribFormat(1, 3, GL_FLOAT, GL_FALSE, 0);
+    glVertexAttribBinding(1, 1);
+}
+
+void Shader::GetActiveVertexInputAttribs(GLuint programHandle)
+{
+    GLint numAttribs;
+    glGetProgramInterfaceiv(programHandle, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &numAttribs);
+
+    GLenum properties[] = { GL_NAME_LENGTH, GL_TYPE, GL_LOCATION };
+
+    std::cout << "Active Attributes:\n";
+    for (int i = 0; i < numAttribs; i++)
+    {
+        GLint results[3];
+        glGetProgramResourceiv(programHandle, GL_PROGRAM_INPUT, i, 3, properties, 3, NULL, results);
+
+        GLint nameBufSize = results[0] + 1;
+        char* name = new char[nameBufSize];
+        glGetProgramResourceName(programHandle, GL_PROGRAM_INPUT, i, nameBufSize, NULL, name);
+        printf("%-5d %s (%s)\n", results[2], name, GetTypeString(results[1]));
+        delete[] name;
+    }
+}
+
 void Shader::PrintVersions()
 {
     // Determining the GLSL and OpenGL version
@@ -375,4 +456,40 @@ void Shader::PrintExtensions()
 
     for (int i = 0; i < nExtensions; i++)
         printf("%s\n", glGetStringi(GL_EXTENSIONS, i));
+}
+
+void Shader::Render()
+{
+    // Render the triangle
+    glBindVertexArray(_mVaoHandle);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+}
+
+const char *Shader::GetTypeString(GLenum type) {
+    switch (type) {
+    case GL_FLOAT:
+        return "float";
+    case GL_FLOAT_VEC2:
+        return "vec2";
+    case GL_FLOAT_VEC3:
+        return "vec3";
+    case GL_FLOAT_VEC4:
+        return "vec4";
+    case GL_DOUBLE:
+        return "double";
+    case GL_INT:
+        return "int";
+    case GL_UNSIGNED_INT:
+        return "unsigned int";
+    case GL_BOOL:
+        return "bool";
+    case GL_FLOAT_MAT2:
+        return "mat2";
+    case GL_FLOAT_MAT3:
+        return "mat3";
+    case GL_FLOAT_MAT4:
+        return "mat4";
+    default:
+        return "?";
+    }
 }
