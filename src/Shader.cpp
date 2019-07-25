@@ -433,6 +433,15 @@ void Shader::SendTriangleData()
     glVertexAttribBinding(0, 0);
     glVertexAttribFormat(1, 3, GL_FLOAT, GL_FALSE, 0);
     glVertexAttribBinding(1, 1);
+
+    // Anything for rotation?
+    float angle = glm::radians(180.0f);
+    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
+    GLuint location = glGetUniformLocation(_mProgramHandle, "RotationMatrix");
+
+    if (location >= 0) { // >= 0 meaning it's not -1, if it was -1 that would mean RotationMatrix did not exist/wasn't active.
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+    }
 }
 
 void Shader::GetActiveVertexInputAttribs()
@@ -479,27 +488,116 @@ void Shader::GetActiveUniformVariables()
     }
 }
 
+void Shader::SendBlobData()
+{
+    // Create VAO for triangle
+    //GLuint vaoHandle;
+
+    // Position & Color data for our Triangle
+    float positionData[] = {
+        -0.8f, -0.8f, 0.0f,
+        0.8f, -0.8f, 0.0f,
+        0.8f,  0.8f, 0.0f,
+        -0.8f, -0.8f, 0.0f,
+        0.8f, 0.8f, 0.0f,
+        -0.8f, 0.8f, 0.0f
+    };
+
+    float texCoordData[] = {
+        0.0f, 0.0f,
+        1.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 0.0f,
+        1.0f, 1.0f,
+        0.0f, 1.0f
+    };
+
+    // Create and populate the buffer objects
+    GLuint vboHandles[2];
+    glGenBuffers(2, vboHandles);
+    GLuint positionBufferHandle = vboHandles[0];
+    GLuint texCoordDataBufferHandle = vboHandles[1];
+
+    // Populate the position buffer
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 18 * sizeof(float), positionData, GL_STATIC_DRAW);
+
+    // Populate the color buffer
+    glBindBuffer(GL_ARRAY_BUFFER, texCoordDataBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 12 * sizeof(float), texCoordData, GL_STATIC_DRAW);
+
+    // Create and set-up the vertex array object
+    glGenVertexArrays(1, &_mVaoHandle);
+    glBindVertexArray(_mVaoHandle);
+
+    // Enable the vertex attribute arrays
+    glEnableVertexAttribArray(0); // Vertex Position
+    glEnableVertexAttribArray(1); // Vertex Color
+
+    // Map index 0 to the position buffer
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    // Map index 1 to the TexCoord buffer
+    glBindBuffer(GL_ARRAY_BUFFER, texCoordDataBufferHandle);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    GLuint blockIndex = glGetUniformBlockIndex(_mProgramHandle, "BlobSettings");
+
+    GLint blockSize;
+    glGetActiveUniformBlockiv(_mProgramHandle, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
+
+    GLubyte* blockBuffer;
+    blockBuffer = (GLubyte*)malloc(blockSize);
+
+    const GLchar* names[] = { "InnerColor",
+                              "OuterColor",
+                              "RadiusInner",
+                              "RadiusOuter"
+    };
+
+    GLuint indices[4];
+    glGetUniformIndices(_mProgramHandle, 4, names, indices);
+
+    GLint offset[4];
+    glGetActiveUniformsiv(_mProgramHandle, 4, indices, GL_UNIFORM_OFFSET, offset);
+
+    // Store data within the buffer at the appropriate offsets
+    GLfloat outerColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    GLfloat innerColor[] = { 1.0f, 1.0f, 0.75f, 1.0f };
+    GLfloat innerRadius = 0.25f,
+            outerRadius = 0.45f;
+
+    memcpy(blockBuffer + offset[0], innerColor, 4 * sizeof(GLfloat));
+    memcpy(blockBuffer + offset[1], outerColor, 4 * sizeof(GLfloat));
+    memcpy(blockBuffer + offset[2], &innerRadius, sizeof(GLfloat));
+    memcpy(blockBuffer + offset[3], &outerRadius, sizeof(GLfloat));
+
+    GLuint uboHandle;
+    glGenBuffers(1, &uboHandle);
+    glBindBuffer(GL_UNIFORM_BUFFER, uboHandle);
+    glBufferData(GL_UNIFORM_BUFFER, blockSize, blockBuffer, GL_DYNAMIC_DRAW);
+
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboHandle);
+}
+
 void Shader::Render()
 {
     // Clear to render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Anything for rotation?
-    float angle = glm::radians(180.0f);
-    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
-    GLuint location = glGetUniformLocation(_mProgramHandle, "RotationMatrix");
 
-    if (location >= 0) { // >= 0 meaning it's not -1, if it was -1 that would mean RotationMatrix did not exist/wasn't active.
-        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(rotationMatrix));
-    }
 
     // Render the triangle
     glBindVertexArray(_mVaoHandle);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-const char *Shader::GetTypeString(GLenum type) {
+const char* Shader::GetTypeString(GLenum type) {
     switch (type) {
     case GL_FLOAT:
         return "float";

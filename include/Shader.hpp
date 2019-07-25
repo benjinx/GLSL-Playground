@@ -24,6 +24,8 @@ public:
     void GetActiveVertexInputAttribs();
     void GetActiveUniformVariables();
 
+    void SendBlobData();
+
     void Render();
 
     // Helper functions

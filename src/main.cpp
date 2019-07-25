@@ -31,15 +31,22 @@ int main()
     Shader* shader = new Shader();
 
     shader->PrintVersions();
-    shader->Load("basic.vert.glsl", "basic.frag.glsl");
-    shader->GetActiveVertexInputAttribs();
-    shader->GetActiveUniformVariables();
-    shader->SendTriangleData();
     //shader->PrintExtensions();
-    //shader->LoadShaderProgramAsBinary();
+    //shader->LoadShaderProgramAsBinary(); // must load shader first to save as binary (shader->Load("...", "...");)
     //shader->LoadShaderProgramAsSPRIV();
 
+    // Triangle Example
+    //shader->Load("basic.vert.glsl", "basic.frag.glsl");
+    //shader->GetActiveVertexInputAttribs();
+    //shader->GetActiveUniformVariables();
+    //shader->SendTriangleData();
 
+    // Blob Example
+    shader->Load("blob.vert.glsl", "blob.frag.glsl");
+    shader->GetActiveVertexInputAttribs();
+    shader->GetActiveUniformVariables();
+    shader->SendBlobData();
+        
 
     // Window loop
     while(!glfwWindowShouldClose(window->GetWindow()))
