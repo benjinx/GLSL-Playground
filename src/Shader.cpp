@@ -83,45 +83,45 @@ void Shader::Load(std::string vertFile, std::string fragFile)
 
 
     // Link our shaders
-    GLuint programHandle = glCreateProgram();
-    if (programHandle == 0)
+    _mProgramHandle = glCreateProgram();
+    if (_mProgramHandle == 0)
     {
         std::cerr << "Error Creating program object.\n";
         exit(EXIT_FAILURE);
     }
 
-    glAttachShader(programHandle, vertShader);
-    glAttachShader(programHandle, fragShader);
+    glAttachShader(_mProgramHandle, vertShader);
+    glAttachShader(_mProgramHandle, fragShader);
 
-    glLinkProgram(programHandle);
+    glLinkProgram(_mProgramHandle);
 
     GLint status;
-    glGetProgramiv(programHandle, GL_LINK_STATUS, &status);
+    glGetProgramiv(_mProgramHandle, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
         std::cerr << "Failed to link shader program.\n";
         GLint logLen;
-        glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLen);
+        glGetProgramiv(_mProgramHandle, GL_INFO_LOG_LENGTH, &logLen);
         if (logLen > 0) {
             std::string log(logLen, ' ');
             GLsizei written;
-            glGetProgramInfoLog(programHandle, logLen, &written, &log[0]);
+            glGetProgramInfoLog(_mProgramHandle, logLen, &written, &log[0]);
             std::cerr << "Program log: \n" << log;
         }
     }
     else
     {
         std::cout << "Shader Program Linked!\n";
-        glUseProgram(programHandle);
+        glUseProgram(_mProgramHandle);
     }
 
-    SaveShaderProgramAsBinary(programHandle);
+    SaveShaderProgramAsBinary(_mProgramHandle);
 
-    GetActiveVertexInputAttribs(programHandle);
+    GetActiveVertexInputAttribs(_mProgramHandle);
 
     // Make sure we delete it
-    glDetachShader(programHandle, vertShader);
-    glDetachShader(programHandle, fragShader);
+    glDetachShader(_mProgramHandle, vertShader);
+    glDetachShader(_mProgramHandle, fragShader);
     glDeleteShader(fragShader);
     glDeleteShader(vertShader);
 
@@ -158,7 +158,7 @@ void Shader::SaveShaderProgramAsBinary(GLuint programHandle)
 
 void Shader::LoadShaderProgramAsBinary()
 {
-    GLuint programHandle = glCreateProgram();
+    _mProgramHandle = glCreateProgram();
 
     // Need to find a way to figure out the format :thinking:
     // Write to the file the format type first then load it here. - Steve
@@ -171,27 +171,27 @@ void Shader::LoadShaderProgramAsBinary()
     inputStream.close();
 
     // Install shader binary
-    glProgramBinary(programHandle, format, buffer.data(), buffer.size());
+    glProgramBinary(_mProgramHandle, format, buffer.data(), buffer.size());
 
     // Check for success/failure
     GLint status;
-    glGetProgramiv(programHandle, GL_LINK_STATUS, &status);
+    glGetProgramiv(_mProgramHandle, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
         std::cerr << "Failed to link shader program.\n";
         GLint logLen;
-        glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLen);
+        glGetProgramiv(_mProgramHandle, GL_INFO_LOG_LENGTH, &logLen);
         if (logLen > 0) {
             std::string log(logLen, ' ');
             GLsizei written;
-            glGetProgramInfoLog(programHandle, logLen, &written, &log[0]);
+            glGetProgramInfoLog(_mProgramHandle, logLen, &written, &log[0]);
             std::cerr << "Program log: \n" << log;
         }
     }
     else
     {
         std::cout << "Shader Program Linked!\n";
-        glUseProgram(programHandle);
+        glUseProgram(_mProgramHandle);
     }
 }
 
@@ -272,41 +272,41 @@ void Shader::LoadShaderProgramAsSPRIV()
     }
 
     // Link our shaders
-    GLuint programHandle = glCreateProgram();
-    if (programHandle == 0)
+    _mProgramHandle = glCreateProgram();
+    if (_mProgramHandle == 0)
     {
         std::cerr << "Error Creating program object.\n";
         exit(EXIT_FAILURE);
     }
 
-    glAttachShader(programHandle, vertShader);
-    glAttachShader(programHandle, fragShader);
+    glAttachShader(_mProgramHandle, vertShader);
+    glAttachShader(_mProgramHandle, fragShader);
 
-    glLinkProgram(programHandle);
+    glLinkProgram(_mProgramHandle);
 
     GLint status;
-    glGetProgramiv(programHandle, GL_LINK_STATUS, &status);
+    glGetProgramiv(_mProgramHandle, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
         std::cerr << "Failed to link shader program.\n";
         GLint logLen;
-        glGetProgramiv(programHandle, GL_INFO_LOG_LENGTH, &logLen);
+        glGetProgramiv(_mProgramHandle, GL_INFO_LOG_LENGTH, &logLen);
         if (logLen > 0) {
             std::string log(logLen, ' ');
             GLsizei written;
-            glGetProgramInfoLog(programHandle, logLen, &written, &log[0]);
+            glGetProgramInfoLog(_mProgramHandle, logLen, &written, &log[0]);
             std::cerr << "Program log: \n" << log;
         }
     }
     else
     {
         std::cout << "Shader Program Linked!\n";
-        glUseProgram(programHandle);
+        glUseProgram(_mProgramHandle);
     }
 
     // Make sure we delete it
-    glDetachShader(programHandle, vertShader);
-    glDetachShader(programHandle, fragShader);
+    glDetachShader(_mProgramHandle, vertShader);
+    glDetachShader(_mProgramHandle, fragShader);
     glDeleteShader(fragShader);
     glDeleteShader(vertShader);
 
@@ -460,6 +460,19 @@ void Shader::PrintExtensions()
 
 void Shader::Render()
 {
+    // Clear to render
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Anything for rotation?
+    float angle = glm::radians(180.0f);
+    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 0.0f, 1.0f));
+    GLuint location = glGetUniformLocation(_mProgramHandle, "RotationMatrix");
+
+    if (location >= 0) {
+        glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(rotationMatrix));
+    }
+
     // Render the triangle
     glBindVertexArray(_mVaoHandle);
     glDrawArrays(GL_TRIANGLES, 0, 3);

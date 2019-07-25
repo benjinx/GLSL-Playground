@@ -30,6 +30,7 @@ public:
 
 private:
     GLuint _mVaoHandle;
+    GLuint _mProgramHandle;
 };
 
 #endif // SHADER_HPP
