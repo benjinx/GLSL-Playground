@@ -16,12 +16,13 @@ public:
     void PrintVersions();
     void PrintExtensions();
 
-    void SaveShaderProgramAsBinary(GLuint programHandle);
+    void SaveShaderProgramAsBinary();
     void LoadShaderProgramAsBinary();
     void LoadShaderProgramAsSPRIV();
 
     void SendTriangleData();
-    void GetActiveVertexInputAttribs(GLuint programHandle);
+    void GetActiveVertexInputAttribs();
+    void GetActiveUniformVariables();
 
     void Render();
 

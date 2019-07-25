@@ -115,9 +115,8 @@ void Shader::Load(std::string vertFile, std::string fragFile)
         glUseProgram(_mProgramHandle);
     }
 
-    SaveShaderProgramAsBinary(_mProgramHandle);
+    SaveShaderProgramAsBinary();
 
-    GetActiveVertexInputAttribs(_mProgramHandle);
 
     // Make sure we delete it
     glDetachShader(_mProgramHandle, vertShader);
@@ -128,7 +127,74 @@ void Shader::Load(std::string vertFile, std::string fragFile)
     //////////////////////////////
 }
 
-void Shader::SaveShaderProgramAsBinary(GLuint programHandle)
+std::string Shader::LoadShaderAsString(std::string fileName)
+{
+    const auto& paths = Utils::GetResourcePaths();
+
+    std::cout << "Loading: " << fileName << "\n";
+
+    std::ifstream shaderFile;
+    bool loaded = false;
+
+    for (auto& p : paths)
+    {
+        std::string fullFilename = p + "/shaders/" + fileName;
+
+        shaderFile.open(fullFilename);
+
+        if (shaderFile.is_open())
+        {
+            std::cout << "Loaded: " << fileName << "\n";
+            loaded = true;
+            break;
+        }
+    }
+
+    if (!loaded)
+    {
+        std::cout << "Failed to load: " << fileName << "\n";
+        std::string failedString;
+        return failedString;
+    }
+
+    std::string shaderString((std::istreambuf_iterator<char>(shaderFile)),
+        std::istreambuf_iterator<char>());
+
+    return shaderString;
+
+}
+
+void Shader::PrintVersions()
+{
+    // Determining the GLSL and OpenGL version
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* vendor = glGetString(GL_VENDOR);
+    const GLubyte* version = glGetString(GL_VERSION);
+    const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+
+    GLint major, minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+    printf("GL Vendor               : %s\n", vendor);
+    printf("GL Renderer             : %s\n", renderer);
+    printf("GL Version (String)     : %s\n", version);
+    printf("GL Version (Integer)    : %d.%d\n", major, minor);
+    printf("GLSL Version            : %s\n", glslVersion);
+    printf("\n");
+}
+
+void Shader::PrintExtensions()
+{
+    // Extensions
+    GLint nExtensions;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
+
+    for (int i = 0; i < nExtensions; i++)
+        printf("%s\n", glGetStringi(GL_EXTENSIONS, i));
+}
+
+void Shader::SaveShaderProgramAsBinary()
 {
     /// Binary Shader Saving
     GLint formats = 0;
@@ -140,13 +206,13 @@ void Shader::SaveShaderProgramAsBinary(GLuint programHandle)
 
     // Get binary length
     GLint length = 0;
-    glGetProgramiv(programHandle, GL_PROGRAM_BINARY_LENGTH, &length);
+    glGetProgramiv(_mProgramHandle, GL_PROGRAM_BINARY_LENGTH, &length);
 
     // Retrieve the binary code
     std::vector<GLubyte> buffer(length);
     GLenum format = 0;
 
-    glGetProgramBinary(programHandle, length, NULL, &format, buffer.data());
+    glGetProgramBinary(_mProgramHandle, length, NULL, &format, buffer.data());
 
     // Write the binary to a file.
     std::string fName("Shader.bin");
@@ -313,43 +379,6 @@ void Shader::LoadShaderProgramAsSPRIV()
     //////////////////////////////
 }
 
-std::string Shader::LoadShaderAsString(std::string fileName)
-{
-    const auto& paths = Utils::GetResourcePaths();
-
-    std::cout << "Loading: " << fileName << "\n";
-
-    std::ifstream shaderFile;
-    bool loaded = false;
-
-    for (auto& p : paths)
-    {
-        std::string fullFilename = p + "/shaders/" + fileName;
-
-        shaderFile.open(fullFilename);
-
-        if (shaderFile.is_open())
-        {
-            std::cout << "Loaded: " << fileName << "\n";
-            loaded = true;
-            break;
-        }
-    }
-
-    if (!loaded)
-    {
-        std::cout << "Failed to load: " << fileName << "\n";
-        std::string failedString;
-        return failedString;
-    }
-
-    std::string shaderString((std::istreambuf_iterator<char>(shaderFile)),
-        std::istreambuf_iterator<char>());
-
-    return shaderString;
-
-}
-
 void Shader::SendTriangleData()
 {
     // Create VAO for triangle
@@ -407,10 +436,10 @@ void Shader::SendTriangleData()
     glVertexAttribBinding(1, 1);
 }
 
-void Shader::GetActiveVertexInputAttribs(GLuint programHandle)
+void Shader::GetActiveVertexInputAttribs()
 {
     GLint numAttribs;
-    glGetProgramInterfaceiv(programHandle, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &numAttribs);
+    glGetProgramInterfaceiv(_mProgramHandle, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &numAttribs);
 
     GLenum properties[] = { GL_NAME_LENGTH, GL_TYPE, GL_LOCATION };
 
@@ -418,44 +447,37 @@ void Shader::GetActiveVertexInputAttribs(GLuint programHandle)
     for (int i = 0; i < numAttribs; i++)
     {
         GLint results[3];
-        glGetProgramResourceiv(programHandle, GL_PROGRAM_INPUT, i, 3, properties, 3, NULL, results);
+        glGetProgramResourceiv(_mProgramHandle, GL_PROGRAM_INPUT, i, 3, properties, 3, NULL, results);
 
         GLint nameBufSize = results[0] + 1;
         char* name = new char[nameBufSize];
-        glGetProgramResourceName(programHandle, GL_PROGRAM_INPUT, i, nameBufSize, NULL, name);
+        glGetProgramResourceName(_mProgramHandle, GL_PROGRAM_INPUT, i, nameBufSize, NULL, name);
         printf("%-5d %s (%s)\n", results[2], name, GetTypeString(results[1]));
         delete[] name;
     }
 }
 
-void Shader::PrintVersions()
+void Shader::GetActiveUniformVariables()
 {
-    // Determining the GLSL and OpenGL version
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* vendor = glGetString(GL_VENDOR);
-    const GLubyte* version = glGetString(GL_VERSION);
-    const GLubyte* glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+    GLint numUniforms = 0;
+    glGetProgramInterfaceiv(_mProgramHandle, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
 
-    GLint major, minor;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    GLenum properties[] = { GL_NAME_LENGTH, GL_TYPE, GL_LOCATION, GL_BLOCK_INDEX };
 
-    printf("GL Vendor               : %s\n", vendor);
-    printf("GL Renderer             : %s\n", renderer);
-    printf("GL Version (String)     : %s\n", version);
-    printf("GL Version (Integer)    : %d.%d\n", major, minor);
-    printf("GLSL Version            : %s\n", glslVersion);
-    printf("\n");
-}
+    std::cout << "Active Uniforms:\n";
 
-void Shader::PrintExtensions()
-{
-    // Extensions
-    GLint nExtensions;
-    glGetIntegerv(GL_NUM_EXTENSIONS, &nExtensions);
-
-    for (int i = 0; i < nExtensions; i++)
-        printf("%s\n", glGetStringi(GL_EXTENSIONS, i));
+    for (int i = 0; i < numUniforms; i++)
+    {
+        GLint results[4];
+        glGetProgramResourceiv(_mProgramHandle, GL_UNIFORM, i, 4, properties, 4, NULL, results);
+        if (results[3] != -1)
+            continue;   // Skip uniforms in blocks
+        GLint nameBufSize = results[0] + 1;
+        char* name = new char[nameBufSize];
+        glGetProgramResourceName(_mProgramHandle, GL_UNIFORM, i, nameBufSize, NULL, name);
+        printf("%-5d %s (%s)\n", results[2], name, GetTypeString(results[1]));
+        delete[] name;
+    }
 }
 
 void Shader::Render()

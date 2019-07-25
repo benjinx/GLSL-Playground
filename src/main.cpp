@@ -32,6 +32,8 @@ int main()
 
     shader->PrintVersions();
     shader->Load("basic.vert.glsl", "basic.frag.glsl");
+    shader->GetActiveVertexInputAttribs();
+    shader->GetActiveUniformVariables();
     shader->SendTriangleData();
     //shader->PrintExtensions();
     //shader->LoadShaderProgramAsBinary();
