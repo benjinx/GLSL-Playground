@@ -42,10 +42,11 @@ int main()
     //shader->SendTriangleData();
 
     // Blob Example
-    shader->Load("blob.vert.glsl", "blob.frag.glsl");
-    shader->GetActiveVertexInputAttribs();
-    shader->GetActiveUniformVariables();
-    shader->SendBlobData();
+    //shader->Load("blob.vert.glsl", "blob.frag.glsl");
+    //shader->SendBlobData();
+
+    // Multi-Pipeline Example
+
         
 
     // Window loop

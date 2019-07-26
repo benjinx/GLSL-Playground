@@ -590,8 +590,6 @@ void Shader::Render()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-
-
     // Render the triangle
     glBindVertexArray(_mVaoHandle);
     glDrawArrays(GL_TRIANGLES, 0, 6);
