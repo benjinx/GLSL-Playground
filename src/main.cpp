@@ -45,9 +45,8 @@ int main()
     //shader->Load("blob.vert.glsl", "blob.frag.glsl");
     //shader->SendBlobData();
 
-    // Multi-Pipeline Example
-
-        
+    // Pipeline Example
+    shader->CreateShaderProgramViaPipeline1();
 
     // Window loop
     while(!glfwWindowShouldClose(window->GetWindow()))
@@ -55,9 +54,11 @@ int main()
         // Input
         processInput(window->GetWindow());
         
+        
         // Render
-        shader->Render();
-
+        //shader->Render();
+        shader->RenderPipelines(window->GetWidth(), window->GetHeight());
+        
         // Check and call events/swap the buffers
         glfwPollEvents();
         glfwSwapBuffers(window->GetWindow());

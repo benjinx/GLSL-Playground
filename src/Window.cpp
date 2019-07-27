@@ -17,6 +17,9 @@ Window::Window(int width, int height)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    _mWidth = width;
+    _mHeight = height;
+
     // Create our window
     _mWindow = glfwCreateWindow(width, height, "GLSL Playground", nullptr, nullptr);
 

@@ -584,6 +584,95 @@ void Shader::SendBlobData()
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboHandle);
 }
 
+void Shader::CreateShaderProgramViaPipeline1()
+{
+    // Multi-Pipeline Example
+    std::string vertCode = LoadShaderAsString("separable.vert.glsl");
+    std::string fragCode1 = LoadShaderAsString("separable1.frag.glsl");
+    std::string fragCode2 = LoadShaderAsString("separable2.frag.glsl");
+
+    const GLchar * codePtrs[] = { vertCode.c_str(), fragCode1.c_str(), fragCode2.c_str() };
+    _mPrograms[0] = glCreateShaderProgramv(GL_VERTEX_SHADER, 1, codePtrs);
+    _mPrograms[1] = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, codePtrs + 1);
+    _mPrograms[2] = glCreateShaderProgramv(GL_FRAGMENT_SHADER, 1, codePtrs + 2);
+
+    // Check for errors...
+    for (int i = 0; i < 3; i++) // 3 indicates we have 3 programs
+    {
+        GLint status;
+        glGetProgramiv(_mPrograms[i], GL_LINK_STATUS, &status);
+        if (status == GL_FALSE)
+        {
+            std::cerr << "Failed to link shader program.\n";
+            GLint logLen;
+            glGetProgramiv(_mPrograms[i], GL_INFO_LOG_LENGTH, &logLen);
+            if (logLen > 0) {
+                std::string log(logLen, ' ');
+                GLsizei written;
+                glGetProgramInfoLog(_mPrograms[i], logLen, &written, &log[0]);
+                std::cerr << "Program log: \n" << log;
+            }
+        }
+    }
+
+    glCreateProgramPipelines(2, _mPipelines);
+
+    // First pipeline
+    glUseProgramStages(_mPipelines[0], GL_VERTEX_SHADER_BIT, _mPrograms[0]);
+    glUseProgramStages(_mPipelines[0], GL_FRAGMENT_SHADER_BIT, _mPrograms[1]);
+
+    // Second pipeline
+    glUseProgramStages(_mPipelines[1], GL_VERTEX_SHADER_BIT, _mPrograms[0]);
+    glUseProgramStages(_mPipelines[1], GL_FRAGMENT_SHADER_BIT, _mPrograms[2]);
+
+    // This is how we would set uniforms
+    /*GLint location = glGetUniformLocation(programs[0], uniformName);
+    glProgramUniform3f(programs[0], location, 0, 1, 0);*/
+
+    /////////////////// Create the VBO ////////////////////
+    float positionData[] = {
+        -0.8f, -0.8f, 0.0f,
+        0.8f, -0.8f, 0.0f,
+        0.0f,  0.8f, 0.0f };
+    float colorData[] = {
+        1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f };
+
+
+    // Create and populate the buffer objects
+    GLuint vboHandles[2];
+    glGenBuffers(2, vboHandles);
+    GLuint positionBufferHandle = vboHandles[0];
+    GLuint colorBufferHandle = vboHandles[1];
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), positionData, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
+    glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), colorData, GL_STATIC_DRAW);
+
+    // Create and set-up the vertex array object
+    glGenVertexArrays(1, &_mVaoHandle);
+    glBindVertexArray(_mVaoHandle);
+
+    glEnableVertexAttribArray(0);  // Vertex position
+    glEnableVertexAttribArray(1);  // Vertex color
+
+    glBindBuffer(GL_ARRAY_BUFFER, positionBufferHandle);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindVertexArray(0);
+
+}
+
+void Shader::CreateShaderProgramViaPipeline2()
+{
+
+}
+
 void Shader::Render()
 {
     // Clear to render
@@ -593,6 +682,35 @@ void Shader::Render()
     // Render the triangle
     glBindVertexArray(_mVaoHandle);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
+
+void Shader::RenderPipelines(int width, int height)
+{
+    // This is for pipeline rendering
+    // Call this before rendering pipelines to make sure there are no other programs being used or it wouldn't work
+    glUseProgram(0);
+
+    GLint uniLocation = glGetUniformLocation(_mPrograms[0], "uColorMask");
+    glProgramUniform3f(_mPrograms[0], uniLocation, 0.0f, 1.0f, 0.0f);
+
+    // Clear to render
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glBindVertexArray(_mVaoHandle);
+    
+    // Use the first pipeline on the left
+    glViewport(0, 0, width / 2, height);
+    glBindProgramPipeline(_mPipelines[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    // Use the second pipeline on the right
+    glViewport(width / 2, 0, width / 2, height);
+    glBindProgramPipeline(_mPipelines[1]);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glBindVertexArray(0);
 }
 
 const char* Shader::GetTypeString(GLenum type) {
