@@ -586,7 +586,7 @@ void Shader::SendBlobData()
 
 void Shader::CreateShaderProgramViaPipeline1()
 {
-    // Multi-Pipeline Example
+    // Multi-Pipeline Example 1
     std::string vertCode = LoadShaderAsString("separable.vert.glsl");
     std::string fragCode1 = LoadShaderAsString("separable1.frag.glsl");
     std::string fragCode2 = LoadShaderAsString("separable2.frag.glsl");
@@ -615,6 +615,101 @@ void Shader::CreateShaderProgramViaPipeline1()
         }
     }
 
+    // This is how we would set uniforms
+    /*GLint location = glGetUniformLocation(programs[0], uniformName);
+    glProgramUniform3f(programs[0], location, 0, 1, 0);*/
+}
+
+void Shader::CreateShaderProgramViaPipeline2()
+{
+    GLuint vertShader = CompileShaderForPipeline("separable.vert.glsl", GL_VERTEX_SHADER);
+    GLuint fragShader1 = CompileShaderForPipeline("separable1.frag.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragShader2 = CompileShaderForPipeline("separable2.frag.glsl", GL_FRAGMENT_SHADER);
+
+    _mPrograms[0] = glCreateProgram();
+    _mPrograms[1] = glCreateProgram();
+    _mPrograms[2] = glCreateProgram();
+
+    glProgramParameteri(_mPrograms[0], GL_PROGRAM_SEPARABLE, GL_TRUE);
+    glProgramParameteri(_mPrograms[1], GL_PROGRAM_SEPARABLE, GL_TRUE);
+    glProgramParameteri(_mPrograms[2], GL_PROGRAM_SEPARABLE, GL_TRUE);
+
+    // Attach the shaders to the program objects
+    glAttachShader(_mPrograms[0], vertShader);
+    glAttachShader(_mPrograms[1], fragShader1);
+    glAttachShader(_mPrograms[2], fragShader2);
+
+    // Link the program
+    glLinkProgram(_mPrograms[0]);
+    CheckLinkStatus(_mPrograms[0]);
+
+    glLinkProgram(_mPrograms[1]);
+    CheckLinkStatus(_mPrograms[1]);
+
+    glLinkProgram(_mPrograms[2]);
+    CheckLinkStatus(_mPrograms[2]);
+}
+
+GLuint Shader::CompileShaderForPipeline(const std::string& fileName, GLenum shaderType)
+{
+    std::string codeStr = LoadShaderAsString(fileName);
+
+    // Create the shader object
+    GLuint shader = glCreateShader(shaderType);
+    if (shader == 0) {
+        std::cerr << "Error creating shader.\n";
+        exit(EXIT_FAILURE);
+    }
+
+    // Load the source code into the shader object
+    const GLchar* codeArray[] = { codeStr.c_str() };
+    glShaderSource(shader, 1, codeArray, NULL);
+
+    // Compile the shader
+    glCompileShader(shader);
+
+    // Check compilation status
+    GLint result;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+    if (result == GL_FALSE) {
+        std::cerr << "Shader compilation failed for " << fileName << std::endl;
+        
+        // Get and print the info log
+        GLint logLen;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLen);
+        if (logLen > 0)
+        {
+            std::string log(logLen, ' ');
+            GLsizei written;
+            glGetShaderInfoLog(shader, logLen, &written, &log[0]);
+            std::cerr << "Shader log: \n" << log;
+        }
+    }
+
+    return shader;
+}
+
+void Shader::CheckLinkStatus(GLuint program)
+{
+    // Check for successful linking
+    GLint status;
+    glGetProgramiv(program, GL_LINK_STATUS, &status);
+    if (status == GL_FALSE)
+    {
+        std::cerr << "Failed to link shader program.\n";
+        GLint logLen;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLen);
+        if (logLen > 0) {
+            std::string log(logLen, ' ');
+            GLsizei written;
+            glGetProgramInfoLog(program, logLen, &written, &log[0]);
+            std::cerr << "Program log: \n" << log;
+        }
+    }
+}
+
+void Shader::CreatePipeLines()
+{
     glCreateProgramPipelines(2, _mPipelines);
 
     // First pipeline
@@ -624,11 +719,10 @@ void Shader::CreateShaderProgramViaPipeline1()
     // Second pipeline
     glUseProgramStages(_mPipelines[1], GL_VERTEX_SHADER_BIT, _mPrograms[0]);
     glUseProgramStages(_mPipelines[1], GL_FRAGMENT_SHADER_BIT, _mPrograms[2]);
+}
 
-    // This is how we would set uniforms
-    /*GLint location = glGetUniformLocation(programs[0], uniformName);
-    glProgramUniform3f(programs[0], location, 0, 1, 0);*/
-
+void Shader::CreateVAO()
+{
     /////////////////// Create the VBO ////////////////////
     float positionData[] = {
         -0.8f, -0.8f, 0.0f,
@@ -665,12 +759,6 @@ void Shader::CreateShaderProgramViaPipeline1()
     glBindBuffer(GL_ARRAY_BUFFER, colorBufferHandle);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glBindVertexArray(0);
-
-}
-
-void Shader::CreateShaderProgramViaPipeline2()
-{
-
 }
 
 void Shader::Render()

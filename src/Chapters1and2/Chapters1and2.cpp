@@ -8,7 +8,7 @@
 #include <OpenGL.hpp>
 #include <Chapters1and2/Shader.hpp>
 #include <Utils.hpp>
-#include <Chapters1and2/Window.hpp>
+#include <Window.hpp>
 
 
 void processInput(GLFWwindow* window)
@@ -17,6 +17,12 @@ void processInput(GLFWwindow* window)
     {
         glfwSetWindowShouldClose(window, true);
     }
+}
+
+void APIENTRY debugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* param)
+{
+    // Convert GLenum parameters to strings 
+    printf("%s:%s[%s](%d): %s\n", glGetString(source), glGetString(type), glGetString(severity), id, message);
 }
 
 
@@ -31,6 +37,9 @@ void Chapters1and2::Start()
     Window* window = new Window(width, height);
 
     Shader* shader = new Shader();
+
+    glDebugMessageCallback(debugCallback, nullptr);
+    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 
     shader->PrintVersions();
     //shader->PrintExtensions();
@@ -48,7 +57,10 @@ void Chapters1and2::Start()
     //shader->SendBlobData();
 
     // Pipeline Example
-    shader->CreateShaderProgramViaPipeline1();
+    //shader->CreateShaderProgramViaPipeline1();
+    shader->CreateShaderProgramViaPipeline2();
+    shader->CreatePipeLines();
+    shader->CreateVAO();
 
     // Window loop
     while (!glfwWindowShouldClose(window->GetWindow()))

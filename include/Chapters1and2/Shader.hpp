@@ -28,6 +28,11 @@ public:
 
     void CreateShaderProgramViaPipeline1();
     void CreateShaderProgramViaPipeline2();
+    GLuint CompileShaderForPipeline(const std::string& fileName, GLenum shaderType);
+    void CheckLinkStatus(GLuint program);
+
+    void CreatePipeLines();
+    void CreateVAO();
 
     void Render();
     void RenderPipelines(int width, int height);

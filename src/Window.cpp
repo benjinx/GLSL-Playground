@@ -1,4 +1,4 @@
-#include <Chapters1and2/Window.hpp>
+#include <Window.hpp>
 
 ////////// CALL BACKS //////////
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -16,6 +16,12 @@ Window::Window(int width, int height)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // For debug context
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
+
+    // Opengl debug context will have debug messages enabled by default. if we need to enable them explicitly we do this.
+    //glEnable(GL_DEBUG_OUTPUT);
 
     _mWidth = width;
     _mHeight = height;
