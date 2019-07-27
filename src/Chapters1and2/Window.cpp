@@ -1,4 +1,4 @@
-#include <Window.hpp>
+#include <Chapters1and2/Window.hpp>
 
 ////////// CALL BACKS //////////
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
