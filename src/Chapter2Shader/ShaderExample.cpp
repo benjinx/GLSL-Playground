@@ -1,4 +1,4 @@
-#include <Chapter2Shader/Shader.hpp>
+#include <Chapter2Shader/ShaderExample.hpp>
 
 #include <fstream>
 #include <iostream>
