@@ -10,6 +10,11 @@
 #include <Utils.hpp>
 #include <Window.hpp>
 
+#include <Chapters1and2/GLSLProgram.hpp>
+
+#include <iostream>
+
+
 
 void processInput(GLFWwindow* window)
 {
@@ -108,6 +113,41 @@ void Chapters1and2::Start()
     shader->CreateShaderProgramViaPipeline2();
     shader->CreatePipeLines();
     shader->CreateVAO();
+
+    GLSLProgram prog;
+
+    try {
+        const auto& paths = Utils::GetResourcePaths();
+
+        std::cout << "Loading: test\n";
+
+        for (auto& p : paths)
+        {
+            std::cout << p << "\n";
+            std::string vert = p + "shaders/" + "basic.vert.glsl";
+            std::cout << vert << "\n";
+
+            //prog.compileShader(vert.c_str());
+            std::string frag = p + "shaders/" + "basic.frag.glsl";
+            //std::cout << frag << "\n";
+            //prog.compileShader(frag.c_str());
+        }
+        
+        prog.link();
+        prog.validate();
+        prog.use();
+    }
+    catch (GLSLProgramException & e)
+    {
+        std::cerr << e.what() << std::endl;
+        system("pause");
+        //exit(EXIT_FAILURE);
+    }
+
+    glm::mat4 matrix = glm::mat4(1);
+    prog.setUniform("ModelViewMatrix", matrix);
+    prog.setUniform("LightPosition", 1.0f, 1.0f, 1.0f);
+    system("pause");
 
     // Window loop
     while (!glfwWindowShouldClose(window->GetWindow()))
