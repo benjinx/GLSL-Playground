@@ -1,20 +1,20 @@
-#include <Chapters1and2/Shader.hpp>
+#include <Chapters1and2/ShaderC1.hpp>
 
 #include <fstream>
 #include <iostream>
 
 #include <Utils.hpp>
 
-Shader::Shader()
+ShaderC1::ShaderC1()
 {
 }
 
-Shader::~Shader()
+ShaderC1::~ShaderC1()
 {
 
 }
 
-void Shader::Load(std::string vertFile, std::string fragFile)
+void ShaderC1::Load(std::string vertFile, std::string fragFile)
 {
     //////////////////////////////
     // Read in our shaders
@@ -126,7 +126,7 @@ void Shader::Load(std::string vertFile, std::string fragFile)
     //////////////////////////////
 }
 
-std::string Shader::LoadShaderAsString(std::string fileName)
+std::string ShaderC1::LoadShaderAsString(std::string fileName)
 {
     const auto& paths = Utils::GetResourcePaths();
 
@@ -163,7 +163,7 @@ std::string Shader::LoadShaderAsString(std::string fileName)
 
 }
 
-void Shader::PrintVersions()
+void ShaderC1::PrintVersions()
 {
     // Determining the GLSL and OpenGL version
     const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -183,7 +183,7 @@ void Shader::PrintVersions()
     printf("\n");
 }
 
-void Shader::PrintExtensions()
+void ShaderC1::PrintExtensions()
 {
     // Extensions
     GLint nExtensions;
@@ -193,7 +193,7 @@ void Shader::PrintExtensions()
         printf("%s\n", glGetStringi(GL_EXTENSIONS, i));
 }
 
-void Shader::SaveShaderProgramAsBinary()
+void ShaderC1::SaveShaderProgramAsBinary()
 {
     /// Binary Shader Saving
     GLint formats = 0;
@@ -221,7 +221,7 @@ void Shader::SaveShaderProgramAsBinary()
     out.close();
 }
 
-void Shader::LoadShaderProgramAsBinary()
+void ShaderC1::LoadShaderProgramAsBinary()
 {
     _mProgramHandle = glCreateProgram();
 
@@ -260,7 +260,7 @@ void Shader::LoadShaderProgramAsBinary()
     }
 }
 
-void Shader::LoadShaderProgramAsSPRIV()
+void ShaderC1::LoadShaderProgramAsSPRIV()
 {
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 
@@ -378,7 +378,7 @@ void Shader::LoadShaderProgramAsSPRIV()
     //////////////////////////////
 }
 
-void Shader::SendTriangleData()
+void ShaderC1::SendTriangleData()
 {
     // Create VAO for triangle
     //GLuint vaoHandle;
@@ -444,7 +444,7 @@ void Shader::SendTriangleData()
     }
 }
 
-void Shader::GetActiveVertexInputAttribs()
+void ShaderC1::GetActiveVertexInputAttribs()
 {
     GLint numAttribs;
     glGetProgramInterfaceiv(_mProgramHandle, GL_PROGRAM_INPUT, GL_ACTIVE_RESOURCES, &numAttribs);
@@ -465,7 +465,7 @@ void Shader::GetActiveVertexInputAttribs()
     }
 }
 
-void Shader::GetActiveUniformVariables()
+void ShaderC1::GetActiveUniformVariables()
 {
     GLint numUniforms = 0;
     glGetProgramInterfaceiv(_mProgramHandle, GL_UNIFORM, GL_ACTIVE_RESOURCES, &numUniforms);
@@ -488,7 +488,7 @@ void Shader::GetActiveUniformVariables()
     }
 }
 
-void Shader::SendBlobData()
+void ShaderC1::SendBlobData()
 {
     // Create VAO for triangle
     //GLuint vaoHandle;
@@ -584,7 +584,7 @@ void Shader::SendBlobData()
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, uboHandle);
 }
 
-void Shader::CreateShaderProgramViaPipeline1()
+void ShaderC1::CreateShaderProgramViaPipeline1()
 {
     // Multi-Pipeline Example 1
     std::string vertCode = LoadShaderAsString("separable.vert.glsl");
@@ -620,7 +620,7 @@ void Shader::CreateShaderProgramViaPipeline1()
     glProgramUniform3f(programs[0], location, 0, 1, 0);*/
 }
 
-void Shader::CreateShaderProgramViaPipeline2()
+void ShaderC1::CreateShaderProgramViaPipeline2()
 {
     GLuint vertShader = CompileShaderForPipeline("separable.vert.glsl", GL_VERTEX_SHADER);
     GLuint fragShader1 = CompileShaderForPipeline("separable1.frag.glsl", GL_FRAGMENT_SHADER);
@@ -650,7 +650,7 @@ void Shader::CreateShaderProgramViaPipeline2()
     CheckLinkStatus(_mPrograms[2]);
 }
 
-GLuint Shader::CompileShaderForPipeline(const std::string& fileName, GLenum shaderType)
+GLuint ShaderC1::CompileShaderForPipeline(const std::string& fileName, GLenum shaderType)
 {
     std::string codeStr = LoadShaderAsString(fileName);
 
@@ -689,7 +689,7 @@ GLuint Shader::CompileShaderForPipeline(const std::string& fileName, GLenum shad
     return shader;
 }
 
-void Shader::CheckLinkStatus(GLuint program)
+void ShaderC1::CheckLinkStatus(GLuint program)
 {
     // Check for successful linking
     GLint status;
@@ -708,7 +708,7 @@ void Shader::CheckLinkStatus(GLuint program)
     }
 }
 
-void Shader::CreatePipeLines()
+void ShaderC1::CreatePipeLines()
 {
     glCreateProgramPipelines(2, _mPipelines);
 
@@ -721,7 +721,7 @@ void Shader::CreatePipeLines()
     glUseProgramStages(_mPipelines[1], GL_FRAGMENT_SHADER_BIT, _mPrograms[2]);
 }
 
-void Shader::CreateVAO()
+void ShaderC1::CreateVAO()
 {
     /////////////////// Create the VBO ////////////////////
     float positionData[] = {
@@ -761,7 +761,7 @@ void Shader::CreateVAO()
     glBindVertexArray(0);
 }
 
-void Shader::Render()
+void ShaderC1::Render()
 {
     // Clear to render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -773,7 +773,7 @@ void Shader::Render()
     glBindVertexArray(0);
 }
 
-void Shader::RenderPipelines(int width, int height)
+void ShaderC1::RenderPipelines(int width, int height)
 {
     // This is for pipeline rendering
     // Call this before rendering pipelines to make sure there are no other programs being used or it wouldn't work
@@ -801,7 +801,7 @@ void Shader::RenderPipelines(int width, int height)
     glBindVertexArray(0);
 }
 
-const char* Shader::GetTypeString(GLenum type) {
+const char* ShaderC1::GetTypeString(GLenum type) {
     switch (type) {
     case GL_FLOAT:
         return "float";

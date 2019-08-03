@@ -1,14 +1,14 @@
-#ifndef SHADER_HPP
-#define SHADER_HPP
+#ifndef SHADERC1_HPP
+#define SHADERC1_HPP
 
 #include <string>
 
 #include <OpenGL.hpp>
 
-class Shader {
+class ShaderC1 {
 public:
-    Shader();
-    ~Shader();
+    ShaderC1();
+    ~ShaderC1();
 
     void Load(std::string vertFile, std::string fragFile);
 
@@ -49,4 +49,4 @@ private:
     GLuint _mPipelines[2];
 };
 
-#endif // SHADER_HPP
+#endif // SHADERC1_HPP

@@ -6,7 +6,7 @@
 #include <fstream>
 
 #include <OpenGL.hpp>
-#include <Chapters1and2/Shader.hpp>
+#include <Chapters1and2/ShaderC1.hpp>
 #include <Utils.hpp>
 #include <Window.hpp>
 
