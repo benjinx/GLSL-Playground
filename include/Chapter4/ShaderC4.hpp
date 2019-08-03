@@ -1,5 +1,5 @@
-#ifndef SHADER_C3_HPP
-#define SHADER_C3_HPP
+#ifndef SHADER_C4_HPP
+#define SHADER_C4_HPP
 
 #include <OpenGL.hpp>
 
@@ -12,7 +12,7 @@ public:
     GLSLProgramException(const std::string & msg) : std::runtime_error(msg) {}
 };
 
-enum GLSLShaderTypeC3 {
+enum GLSLShaderTypeC4 {
     VERTEX = GL_VERTEX_SHADER,
     FRAGMENT = GL_FRAGMENT_SHADER,
     GEOMETRY = GL_GEOMETRY_SHADER,
@@ -21,10 +21,10 @@ enum GLSLShaderTypeC3 {
     COMPUTE = GL_COMPUTE_SHADER
 };
 
-class ShaderC3 {
+class ShaderC4 {
 public:
-    ShaderC3();
-    ~ShaderC3();
+    ShaderC4();
+    ~ShaderC4();
 
     void CompileShader(const std::string & filename);
     
@@ -55,15 +55,15 @@ private:
 
     // These are a chain stemming from the public CompileShader function.
     void CheckExtension(const std::string & filename);
-    void LoadShaderAsString(const std::string & filename, GLSLShaderTypeC3 type);
-    void CompileShader(const std::string & source, GLSLShaderTypeC3 type, const std::string & filename = nullptr);
+    void LoadShaderAsString(const std::string & filename, GLSLShaderTypeC4 type);
+    void CompileShader(const std::string & source, GLSLShaderTypeC4 type, const std::string & filename = nullptr);
 
     inline GLint GetUniformLocation(const char * name);
     void DetachAndDeleteShaderObjects();
     std::string GetExtension(const std::string & filename);
 };
 
-int ShaderC3::GetUniformLocation(const char * name)
+int ShaderC4::GetUniformLocation(const char * name)
 {
     auto pos = _mUniformLocations.find(name);
 
