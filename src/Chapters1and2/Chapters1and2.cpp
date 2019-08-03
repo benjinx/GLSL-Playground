@@ -9,7 +9,7 @@
 #include <Utils.hpp>
 #include <Window.hpp>
 
-#include <Chapters1and2/GLSLProgram.hpp>
+#include <GLSLProgram.hpp>
 
 #include <iostream>
 
@@ -117,40 +117,29 @@ void Chapters1and2::Start()
     GLSLProgram prog;
 
     try {
-        const auto& paths = Utils::GetResourcePaths();
+        std::string vert = "Chapters1and2/basic.vert.glsl";
+        //std::cout << "vert: " << vert << "\n";
+        prog.CompileShader(vert.c_str());
 
-        std::cout << "Loading: Test Shader\n";
-
-        for (auto& p : paths)
-        {
-            if (p != "") // skip first... it's blank because it searches where the exe is first, and happens to break during this example.
-            {
-                //std::cout << "Path: " << p << "\n";
-
-                std::string vert = p + "shaders/Chapters1and2/" + "basic.vert.glsl";
-                //std::cout << "vert: " << vert << "\n";
-                prog.compileShader(vert.c_str());
-
-                std::string frag = p + "shaders/Chapters1and2/" + "basic.frag.glsl";
-                //std::cout << "frag: " << frag << "\n";
-                prog.compileShader(frag.c_str());
-            }
-        }
+        std::string frag = "Chapters1and2/basic.frag.glsl";
+        //std::cout << "frag: " << frag << "\n";
+        prog.CompileShader(frag.c_str());
         
-        prog.link();
-        prog.validate();
-        prog.use();
+        prog.Link();
+        prog.Validate();
+        prog.Use();
     }
     catch (GLSLProgramException & e)
     {
         std::cerr << e.what() << std::endl;
+        system("pause");
         exit(EXIT_FAILURE);
     }
 
     // Test pass in stuff, doesn't actually do anything in this demo.
     glm::mat4 matrix = glm::mat4(1);
-    prog.setUniform("ModelViewMatrix", matrix);
-    prog.setUniform("LightPosition", 1.0f, 1.0f, 1.0f);
+    prog.SetUniform("ModelViewMatrix", matrix);
+    prog.SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
 
     // Window loop
     while (!glfwWindowShouldClose(window->GetWindow()))

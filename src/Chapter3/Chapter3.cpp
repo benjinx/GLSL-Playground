@@ -1,6 +1,6 @@
 #include <Chapter3/Chapter3.hpp>
 
-#include <Chapter3/ShaderC3.hpp>
+#include <GLSLProgram.hpp>
 #include <Utils.hpp>
 #include <Window.hpp>
 
@@ -21,19 +21,19 @@ void Chapter3::Start()
 
     Window* window = new Window(width, height);
 
-    ShaderC3* shader = new ShaderC3();
+    GLSLProgram* prog = new GLSLProgram();
     
     try {
 
-        std::string vert = "basic.vert.glsl";
-        shader->CompileShader(vert.c_str());
+        std::string vert = "/Chapter3/basic.vert.glsl";
+        prog->CompileShader(vert.c_str());
 
-        std::string frag = "basic.frag.glsl";
-        shader->CompileShader(frag.c_str());
+        std::string frag = "/Chapter3/basic.frag.glsl";
+        prog->CompileShader(frag.c_str());
 
-        shader->Link();
-        shader->Validate();
-        shader->Use();
+        prog->Link();
+        prog->Validate();
+        prog->Use();
     }
     catch (GLSLProgramException & e)
     {
@@ -44,8 +44,8 @@ void Chapter3::Start()
 
     // Test pass in stuff, doesn't actually do anything in this demo.
     glm::mat4 matrix = glm::mat4(1);
-    shader->SetUniform("ModelViewMatrix", matrix);
-    shader->SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
+    prog->SetUniform("ModelViewMatrix", matrix);
+    prog->SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
 
     while (!glfwWindowShouldClose(window->GetWindow()))
     {

@@ -1,5 +1,5 @@
-#ifndef SHADER_C3_HPP
-#define SHADER_C3_HPP
+#ifndef GLSL_PROGRAM_HPP
+#define GLSL_PROGRAM_HPP
 
 #include <OpenGL.hpp>
 
@@ -21,10 +21,10 @@ enum GLSLShaderTypeC3 {
     COMPUTE = GL_COMPUTE_SHADER
 };
 
-class ShaderC3 {
+class GLSLProgram {
 public:
-    ShaderC3();
-    ~ShaderC3();
+    GLSLProgram();
+    ~GLSLProgram();
 
     void CompileShader(const std::string & filename);
     
@@ -63,7 +63,7 @@ private:
     std::string GetExtension(const std::string & filename);
 };
 
-int ShaderC3::GetUniformLocation(const char * name)
+int GLSLProgram::GetUniformLocation(const char * name)
 {
     auto pos = _mUniformLocations.find(name);
 
@@ -77,4 +77,4 @@ int ShaderC3::GetUniformLocation(const char * name)
     return pos->second;
 }
 
-#endif // SHADER_C3_HPP
+#endif // GLSL_PROGRAM_HPP

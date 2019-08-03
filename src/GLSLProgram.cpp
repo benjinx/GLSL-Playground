@@ -1,4 +1,4 @@
-#include <Chapter3/ShaderC3.hpp>
+#include <GLSLProgram.hpp>
 
 #include <Utils.hpp>
 
@@ -27,9 +27,9 @@ namespace GLSLShaderInfo {
     };
 }
 
-ShaderC3::ShaderC3() : _mHandle(0), _mLinked(false) { }
+GLSLProgram::GLSLProgram() : _mHandle(0), _mLinked(false) { }
 
-ShaderC3::~ShaderC3()
+GLSLProgram::~GLSLProgram()
 {
     if (_mHandle == 0) return;
     DetachAndDeleteShaderObjects();
@@ -38,7 +38,7 @@ ShaderC3::~ShaderC3()
     glDeleteProgram(_mHandle);
 }
 
-void ShaderC3::DetachAndDeleteShaderObjects()
+void GLSLProgram::DetachAndDeleteShaderObjects()
 {
     // Detach and delete the shader objects (if they are not already removed)
     GLint numShaders = 0;
@@ -51,7 +51,8 @@ void ShaderC3::DetachAndDeleteShaderObjects()
     }
 }
 
-std::string ShaderC3::GetExtension(const std::string & filename) {
+std::string GLSLProgram::GetExtension(const std::string & filename)
+{
     std::string nameStr(filename);
 
     size_t dotLoc = nameStr.find_last_of('.');
@@ -75,12 +76,12 @@ std::string ShaderC3::GetExtension(const std::string & filename) {
     return "";
 }
 
-void ShaderC3::CompileShader(const std::string & filename)
+void GLSLProgram::CompileShader(const std::string & filename)
 {
     CheckExtension(filename);
 }
 
-void ShaderC3::CheckExtension(const std::string & filename)
+void GLSLProgram::CheckExtension(const std::string & filename)
 {
     // Check the filenames extension to determine the shader type
     std::string ext = GetExtension(filename);
@@ -101,7 +102,7 @@ void ShaderC3::CheckExtension(const std::string & filename)
     LoadShaderAsString(filename, type);
 }
 
-void ShaderC3::LoadShaderAsString(const std::string & filename, GLSLShaderTypeC3 type)
+void GLSLProgram::LoadShaderAsString(const std::string & filename, GLSLShaderTypeC3 type)
 {
     const auto& paths = Utils::GetResourcePaths();
 
@@ -112,7 +113,7 @@ void ShaderC3::LoadShaderAsString(const std::string & filename, GLSLShaderTypeC3
 
     for (auto& p : paths)
     {
-        std::string fullFilename = p + "/shaders/Chapter3/" + filename;
+        std::string fullFilename = p + "/shaders/" + filename;
 
         shaderFile.open(fullFilename);
 
@@ -139,7 +140,7 @@ void ShaderC3::LoadShaderAsString(const std::string & filename, GLSLShaderTypeC3
     CompileShader(shaderString, type, filename);
 }
 
-void ShaderC3::CompileShader(const std::string & source, GLSLShaderTypeC3 type, const std::string & filename)
+void GLSLProgram::CompileShader(const std::string & source, GLSLShaderTypeC3 type, const std::string & filename)
 {
     if (_mHandle <= 0)
     {
@@ -195,7 +196,7 @@ void ShaderC3::CompileShader(const std::string & source, GLSLShaderTypeC3 type, 
     }
 }
 
-void ShaderC3::Link()
+void GLSLProgram::Link()
 {
     if (_mLinked)
     {
@@ -240,7 +241,7 @@ void ShaderC3::Link()
     }
 }
 
-void ShaderC3::FindUniformLocations()
+void GLSLProgram::FindUniformLocations()
 {
     _mUniformLocations.clear();
 
@@ -264,7 +265,7 @@ void ShaderC3::FindUniformLocations()
     }
 }
 
-void ShaderC3::Validate()
+void GLSLProgram::Validate()
 {
     if (!IsLinked())
     {
@@ -295,7 +296,7 @@ void ShaderC3::Validate()
     }
 }
 
-void ShaderC3::Use()
+void GLSLProgram::Use()
 {
     if (_mHandle <= 0 || (!_mLinked))
     {
@@ -305,51 +306,51 @@ void ShaderC3::Use()
     glUseProgram(_mHandle);
 }
 
-void ShaderC3::SetUniform(const char * name, float x, float y, float z) {
+void GLSLProgram::SetUniform(const char * name, float x, float y, float z) {
     GLint loc = GetUniformLocation(name);
     glUniform3f(loc, x, y, z);
 }
 
-void ShaderC3::SetUniform(const char * name, const glm::vec3 &v) {
+void GLSLProgram::SetUniform(const char * name, const glm::vec3 &v) {
     this->SetUniform(name, v.x, v.y, v.z);
 }
 
-void ShaderC3::SetUniform(const char * name, const glm::vec4 &v) {
+void GLSLProgram::SetUniform(const char * name, const glm::vec4 &v) {
     GLint loc = GetUniformLocation(name);
     glUniform4f(loc, v.x, v.y, v.z, v.w);
 }
 
-void ShaderC3::SetUniform(const char * name, const glm::vec2 &v) {
+void GLSLProgram::SetUniform(const char * name, const glm::vec2 &v) {
     GLint loc = GetUniformLocation(name);
     glUniform2f(loc, v.x, v.y);
 }
 
-void ShaderC3::SetUniform(const char * name, const glm::mat4 &m) {
+void GLSLProgram::SetUniform(const char * name, const glm::mat4 &m) {
     GLint loc = GetUniformLocation(name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, &m[0][0]);
 }
 
-void ShaderC3::SetUniform(const char * name, const glm::mat3 &m) {
+void GLSLProgram::SetUniform(const char * name, const glm::mat3 &m) {
     GLint loc = GetUniformLocation(name);
     glUniformMatrix3fv(loc, 1, GL_FALSE, &m[0][0]);
 }
 
-void ShaderC3::SetUniform(const char * name, float val) {
+void GLSLProgram::SetUniform(const char * name, float val) {
     GLint loc = GetUniformLocation(name);
     glUniform1f(loc, val);
 }
 
-void ShaderC3::SetUniform(const char * name, int val) {
+void GLSLProgram::SetUniform(const char * name, int val) {
     GLint loc = GetUniformLocation(name);
     glUniform1i(loc, val);
 }
 
-void ShaderC3::SetUniform(const char * name, GLuint val) {
+void GLSLProgram::SetUniform(const char * name, GLuint val) {
     GLint loc = GetUniformLocation(name);
     glUniform1ui(loc, val);
 }
 
-void ShaderC3::SetUniform(const char * name, bool val) {
+void GLSLProgram::SetUniform(const char * name, bool val) {
     int loc = GetUniformLocation(name);
     glUniform1i(loc, val);
 }
