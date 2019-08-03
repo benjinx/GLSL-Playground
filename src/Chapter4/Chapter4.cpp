@@ -1,6 +1,6 @@
 #include <Chapter4/Chapter4.hpp>
 
-#include <Chapter4/ShaderC4.hpp>
+#include <GLSLProgram.hpp>
 #include <Utils.hpp>
 #include <Window.hpp>
 
@@ -15,25 +15,25 @@ void Chapter4::ProcessInput(GLFWwindow* window)
 void Chapter4::Start()
 {
     Utils::SetAssetPath(RESOURCE_PATH);
-    
+
     int width = 800,
         height = 600;
 
     Window* window = new Window(width, height);
 
-    ShaderC4* shader = new ShaderC4();
-    
+    GLSLProgram* prog = new GLSLProgram();
+
     try {
 
-        std::string vert = "basic.vert.glsl";
-        shader->CompileShader(vert.c_str());
+        std::string vert = "/Chapter4/basic.vert.glsl";
+        prog->CompileShader(vert.c_str());
 
-        std::string frag = "basic.frag.glsl";
-        shader->CompileShader(frag.c_str());
+        std::string frag = "/Chapter4/basic.frag.glsl";
+        prog->CompileShader(frag.c_str());
 
-        shader->Link();
-        shader->Validate();
-        shader->Use();
+        prog->Link();
+        prog->Validate();
+        prog->Use();
     }
     catch (GLSLProgramException & e)
     {
@@ -44,8 +44,8 @@ void Chapter4::Start()
 
     // Test pass in stuff, doesn't actually do anything in this demo.
     glm::mat4 matrix = glm::mat4(1);
-    shader->SetUniform("ModelViewMatrix", matrix);
-    shader->SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
+    prog->SetUniform("ModelViewMatrix", matrix);
+    prog->SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
 
     while (!glfwWindowShouldClose(window->GetWindow()))
     {

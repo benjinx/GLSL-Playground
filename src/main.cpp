@@ -1,5 +1,6 @@
 #include <Chapters1and2/Chapters1and2.hpp>
 #include <Chapter3/Chapter3.hpp>
+#include <Chapter4/Chapter4.hpp>
 
 #include <iostream>
 
@@ -11,6 +12,9 @@ int main()
 
     Chapter3 chapter3;
     chapter3.Start();
+
+    Chapter4 chapter4;
+    chapter4.Start();
 
     return 0;
 }
