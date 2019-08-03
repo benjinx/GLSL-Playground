@@ -1,6 +1,8 @@
 #include <Chapters1and2/Chapters1and2.hpp>
 #include <Chapter3/Chapter3.hpp>
 
+#include <iostream>
+
 int main()
 {
     // Examples from the first 2 chapters
