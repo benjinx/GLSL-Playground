@@ -5,7 +5,6 @@
 #include <sstream>
 #include <fstream>
 
-#include <OpenGL.hpp>
 #include <Chapters1and2/ShaderC1.hpp>
 #include <Utils.hpp>
 #include <Window.hpp>
@@ -16,7 +15,7 @@
 
 
 
-void processInput(GLFWwindow* window)
+void Chapters1and2::ProcessInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     {
@@ -157,7 +156,7 @@ void Chapters1and2::Start()
     while (!glfwWindowShouldClose(window->GetWindow()))
     {
         // Input
-        processInput(window->GetWindow());
+        ProcessInput(window->GetWindow());
 
         // Render
         //shader->Render();

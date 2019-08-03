@@ -4,11 +4,11 @@
 int main()
 {
     // Examples from the first 2 chapters
-    Chapters1and2 chapters1and2;
-    chapters1and2.Start();
+    //Chapters1and2 chapters1and2;
+    //chapters1and2.Start();
 
-    //Chapter3 chapter3;
-    //chapter3.Start();
+    Chapter3 chapter3;
+    chapter3.Start();
 
     return 0;
 }
