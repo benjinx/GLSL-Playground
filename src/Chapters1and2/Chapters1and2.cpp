@@ -88,12 +88,12 @@ void Chapters1and2::Start()
 
     Window* window = new Window(width, height);
 
-    Shader* shader = new Shader();
+    //Shader* shader = new Shader();
 
     glDebugMessageCallback(debugCallback, nullptr);
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 
-    shader->PrintVersions();
+    //shader->PrintVersions();
     //shader->PrintExtensions();
     //shader->LoadShaderProgramAsBinary(); // must load shader first to save as binary (shader->Load("...", "...");)
     //shader->LoadShaderProgramAsSPRIV();
@@ -110,27 +110,32 @@ void Chapters1and2::Start()
 
     // Pipeline Example
     //shader->CreateShaderProgramViaPipeline1();
-    shader->CreateShaderProgramViaPipeline2();
-    shader->CreatePipeLines();
-    shader->CreateVAO();
+    //shader->CreateShaderProgramViaPipeline2();
+    //shader->CreatePipeLines();
+    //shader->CreateVAO();
 
+    // Shader Program Example
     GLSLProgram prog;
 
     try {
         const auto& paths = Utils::GetResourcePaths();
 
-        std::cout << "Loading: test\n";
+        std::cout << "Loading: Test Shader\n";
 
         for (auto& p : paths)
         {
-            std::cout << p << "\n";
-            std::string vert = p + "shaders/" + "basic.vert.glsl";
-            std::cout << vert << "\n";
+            if (p != "") // skip first... it's blank because it searches where the exe is first, and happens to break during this example.
+            {
+                //std::cout << "Path: " << p << "\n";
 
-            //prog.compileShader(vert.c_str());
-            std::string frag = p + "shaders/" + "basic.frag.glsl";
-            //std::cout << frag << "\n";
-            //prog.compileShader(frag.c_str());
+                std::string vert = p + "shaders/" + "basic.vert.glsl";
+                //std::cout << "vert: " << vert << "\n";
+                prog.compileShader(vert.c_str());
+
+                std::string frag = p + "shaders/" + "basic.frag.glsl";
+                //std::cout << "frag: " << frag << "\n";
+                prog.compileShader(frag.c_str());
+            }
         }
         
         prog.link();
@@ -140,14 +145,13 @@ void Chapters1and2::Start()
     catch (GLSLProgramException & e)
     {
         std::cerr << e.what() << std::endl;
-        system("pause");
-        //exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
     }
 
+    // Test pass in stuff, doesn't actually do anything in this demo.
     glm::mat4 matrix = glm::mat4(1);
     prog.setUniform("ModelViewMatrix", matrix);
     prog.setUniform("LightPosition", 1.0f, 1.0f, 1.0f);
-    system("pause");
 
     // Window loop
     while (!glfwWindowShouldClose(window->GetWindow()))
@@ -157,7 +161,7 @@ void Chapters1and2::Start()
 
         // Render
         //shader->Render();
-        shader->RenderPipelines(window->GetWidth(), window->GetHeight());
+        //shader->RenderPipelines(window->GetWidth(), window->GetHeight());
 
         // Check and call events/swap the buffers
         glfwPollEvents();

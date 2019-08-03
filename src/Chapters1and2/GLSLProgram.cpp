@@ -103,7 +103,7 @@ void GLSLProgram::compileShader(const char * fileName, GLSLShader::GLSLShaderTyp
     }
 
     std::ifstream inFile(fileName, std::ios::in);
-    if (inFile) {
+    if (!inFile) {
         std::string message = std::string("Unable to open: ") + fileName;
         throw GLSLProgramException(message);
     }
