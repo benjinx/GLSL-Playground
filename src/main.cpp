@@ -13,8 +13,5 @@ int main()
     Chapter3 chapter3;
     chapter3.Start();
 
-    Chapter4 chapter4;
-    chapter4.Start();
-
     return 0;
 }

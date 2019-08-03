@@ -1,8 +1,7 @@
 #include <Chapter3/Chapter3.hpp>
 
-#include <GLSLProgram.hpp>
 #include <Utils.hpp>
-#include <Window.hpp>
+
 
 void Chapter3::ProcessInput(GLFWwindow* window)
 {
@@ -19,21 +18,21 @@ void Chapter3::Start()
     int width = 800,
         height = 600;
 
-    Window* window = new Window(width, height);
+    _mWindow = new Window(width, height);
 
-    GLSLProgram* prog = new GLSLProgram();
+    _mProgram = new GLSLProgram();
     
     try {
 
         std::string vert = "/Chapter3/basic.vert.glsl";
-        prog->CompileShader(vert.c_str());
+        _mProgram->CompileShader(vert.c_str());
 
         std::string frag = "/Chapter3/basic.frag.glsl";
-        prog->CompileShader(frag.c_str());
+        _mProgram->CompileShader(frag.c_str());
 
-        prog->Link();
-        prog->Validate();
-        prog->Use();
+        _mProgram->Link();
+        _mProgram->Validate();
+        _mProgram->Use();
     }
     catch (GLSLProgramException & e)
     {
@@ -44,18 +43,18 @@ void Chapter3::Start()
 
     // Test pass in stuff, doesn't actually do anything in this demo.
     glm::mat4 matrix = glm::mat4(1);
-    prog->SetUniform("ModelViewMatrix", matrix);
-    prog->SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
+    _mProgram->SetUniform("ModelViewMatrix", matrix);
+    _mProgram->SetUniform("LightPosition", 1.0f, 1.0f, 1.0f);
 
-    while (!glfwWindowShouldClose(window->GetWindow()))
+    while (!glfwWindowShouldClose(_mWindow->GetWindow()))
     {
         // Input
-        ProcessInput(window->GetWindow());
+        ProcessInput(_mWindow->GetWindow());
 
         // Render
 
         // Check and call events/swap the buffers
         glfwPollEvents();
-        glfwSwapBuffers(window->GetWindow());
+        glfwSwapBuffers(_mWindow->GetWindow());
     }
 }
