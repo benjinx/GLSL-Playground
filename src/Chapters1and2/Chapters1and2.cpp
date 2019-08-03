@@ -98,13 +98,13 @@ void Chapters1and2::Start()
     //shader->LoadShaderProgramAsSPRIV();
 
     // Triangle Example
-    //shader->Load("basic.vert.glsl", "basic.frag.glsl");
+    //shader->Load("Chapters1and2/basic.vert.glsl", "Chapters1and2/basic.frag.glsl");
     //shader->GetActiveVertexInputAttribs();
     //shader->GetActiveUniformVariables();
     //shader->SendTriangleData();
 
     // Blob Example
-    //shader->Load("blob.vert.glsl", "blob.frag.glsl");
+    //shader->Load("Chapters1and2/blob.vert.glsl", "Chapters1and2/blob.frag.glsl");
     //shader->SendBlobData();
 
     // Pipeline Example
@@ -127,11 +127,11 @@ void Chapters1and2::Start()
             {
                 //std::cout << "Path: " << p << "\n";
 
-                std::string vert = p + "shaders/" + "basic.vert.glsl";
+                std::string vert = p + "shaders/Chapters1and2/" + "basic.vert.glsl";
                 //std::cout << "vert: " << vert << "\n";
                 prog.compileShader(vert.c_str());
 
-                std::string frag = p + "shaders/" + "basic.frag.glsl";
+                std::string frag = p + "shaders/Chapters1and2/" + "basic.frag.glsl";
                 //std::cout << "frag: " << frag << "\n";
                 prog.compileShader(frag.c_str());
             }

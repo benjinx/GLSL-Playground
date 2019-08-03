@@ -587,9 +587,9 @@ void ShaderC1::SendBlobData()
 void ShaderC1::CreateShaderProgramViaPipeline1()
 {
     // Multi-Pipeline Example 1
-    std::string vertCode = LoadShaderAsString("separable.vert.glsl");
-    std::string fragCode1 = LoadShaderAsString("separable1.frag.glsl");
-    std::string fragCode2 = LoadShaderAsString("separable2.frag.glsl");
+    std::string vertCode = LoadShaderAsString("Chapters1and2/separable.vert.glsl");
+    std::string fragCode1 = LoadShaderAsString("Chapters1and2/separable1.frag.glsl");
+    std::string fragCode2 = LoadShaderAsString("Chapters1and2/separable2.frag.glsl");
 
     const GLchar * codePtrs[] = { vertCode.c_str(), fragCode1.c_str(), fragCode2.c_str() };
     _mPrograms[0] = glCreateShaderProgramv(GL_VERTEX_SHADER, 1, codePtrs);
@@ -622,9 +622,9 @@ void ShaderC1::CreateShaderProgramViaPipeline1()
 
 void ShaderC1::CreateShaderProgramViaPipeline2()
 {
-    GLuint vertShader = CompileShaderForPipeline("separable.vert.glsl", GL_VERTEX_SHADER);
-    GLuint fragShader1 = CompileShaderForPipeline("separable1.frag.glsl", GL_FRAGMENT_SHADER);
-    GLuint fragShader2 = CompileShaderForPipeline("separable2.frag.glsl", GL_FRAGMENT_SHADER);
+    GLuint vertShader = CompileShaderForPipeline("Chapters1and2/separable.vert.glsl", GL_VERTEX_SHADER);
+    GLuint fragShader1 = CompileShaderForPipeline("Chapters1and2/separable1.frag.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragShader2 = CompileShaderForPipeline("Chapters1and2/separable2.frag.glsl", GL_FRAGMENT_SHADER);
 
     _mPrograms[0] = glCreateProgram();
     _mPrograms[1] = glCreateProgram();
