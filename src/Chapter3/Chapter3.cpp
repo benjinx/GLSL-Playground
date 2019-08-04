@@ -22,6 +22,8 @@ void Chapter3::Start()
 
     _mProgram = new GLSLProgram();
 
+    _mTorus = new Torus(0.7f, 0.3f, 30, 30);
+
     CompileAndLink();
 
     glEnable(GL_DEPTH_TEST);
@@ -36,6 +38,8 @@ void Chapter3::Start()
     _mProgram->SetUniform("Ld", 1.0f, 1.0f, 1.0f);
     _mProgram->SetUniform("LightPosition", _mView * glm::vec4(5.0f, 5.0f, 2.0f, 1.0f));
 
+   
+
     while (!glfwWindowShouldClose(_mWindow->GetWindow()))
     {
         // Input
@@ -44,12 +48,10 @@ void Chapter3::Start()
         // Render
         // Clear to render
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Render the triangle
-        glBindVertexArray(_mProgram->GetHandle());
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
+        SetMatrices();
+        _mTorus->render();
 
         // Check and call events/swap the buffers
         glfwPollEvents();
@@ -61,10 +63,10 @@ void Chapter3::CompileAndLink()
 {
     try {
 
-        std::string vert = "/Chapter3/basic.vert.glsl";
+        std::string vert = "/Chapter3/diffuse.vert";
         _mProgram->CompileShader(vert.c_str());
 
-        std::string frag = "/Chapter3/basic.frag.glsl";
+        std::string frag = "/Chapter3/diffuse.frag";
         _mProgram->CompileShader(frag.c_str());
 
         _mProgram->Link();
@@ -77,4 +79,13 @@ void Chapter3::CompileAndLink()
         system("pause");
         exit(EXIT_FAILURE);
     }
+}
+
+void Chapter3::SetMatrices()
+{
+    glm::mat4 mv = _mView * _mModel;
+    _mProgram->SetUniform("ModelViewMatrix", mv);
+    _mProgram->SetUniform("NormalMatrix",
+        glm::mat3(glm::vec3(mv[0]), glm::vec3(mv[1]), glm::vec3(mv[2])));
+    _mProgram->SetUniform("MVP", _mProjection * mv);
 }
